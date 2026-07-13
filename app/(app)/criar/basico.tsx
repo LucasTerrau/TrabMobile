@@ -16,14 +16,20 @@ import { randomNames } from '@/src/data/appData';
 import { colors, spacing } from '@/src/theme/theme';
 
 export default function BasicStepScreen() {
-  const { draft, updateDraft } = useCharacterDraft();
-  const [lastNameIndex, setLastNameIndex] = useState(-1);
+  const { draft, updateDraft } =
+    useCharacterDraft();
+
+  const [lastNameIndex, setLastNameIndex] =
+    useState(-1);
 
   function randomizeName() {
-    let newIndex = Math.floor(Math.random() * randomNames.length);
+    let newIndex = Math.floor(
+      Math.random() * randomNames.length,
+    );
 
     if (newIndex === lastNameIndex) {
-      newIndex = (newIndex + 1) % randomNames.length;
+      newIndex =
+        (newIndex + 1) % randomNames.length;
     }
 
     setLastNameIndex(newIndex);
@@ -39,6 +45,7 @@ export default function BasicStepScreen() {
         'Informe um nome',
         'Digite ou sorteie o nome do personagem.',
       );
+
       return;
     }
 
@@ -47,21 +54,28 @@ export default function BasicStepScreen() {
 
   return (
     <Screen>
-      <Text style={styles.step}>ETAPA 1 DE 5</Text>
+      <Text style={styles.step}>
+        ETAPA 1 DE 5
+      </Text>
 
       <Text style={styles.title}>
         Quem é o personagem?
       </Text>
 
       <Text style={styles.description}>
-        Comece escolhendo apenas um nome e, se quiser, uma imagem.
+        Comece escolhendo apenas um nome e, se quiser,
+        uma imagem.
       </Text>
 
-      <Text style={styles.label}>Nome</Text>
+      <Text style={styles.label}>
+        Nome
+      </Text>
 
       <TextInput
         value={draft.name}
-        onChangeText={(name) => updateDraft({ name })}
+        onChangeText={(name) =>
+          updateDraft({ name })
+        }
         placeholder="Nome do personagem"
         placeholderTextColor={colors.textMuted}
         style={styles.input}

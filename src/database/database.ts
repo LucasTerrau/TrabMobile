@@ -308,3 +308,21 @@ export async function toggleCharacterFavorite(
     isFavorite: !character.isFavorite,
   });
 }
+export async function findMostRecentCharacter(
+  database: SQLiteDatabase,
+) {
+  const row = await database.getFirstAsync<CharacterRow>(
+    `
+      SELECT *
+      FROM characters
+      ORDER BY created_at DESC
+      LIMIT 1
+    `,
+  );
+
+  if (!row) {
+    return null;
+  }
+
+  return convertRow(row);
+}

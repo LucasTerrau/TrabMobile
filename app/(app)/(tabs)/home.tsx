@@ -1,4 +1,6 @@
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
+import { useCallback, useState } from 'react';
 import {
   Image,
   StyleSheet,
@@ -9,19 +11,52 @@ import {
 import { AppButton } from '@/src/components/AppButton';
 import { Screen } from '@/src/components/Screen';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { homeImage } from '@/src/data/images';
+import {
+  Character,
+  findMostRecentCharacter,
+} from '@/src/database/database';
+import {
+  defaultCharacterImage,
+} from '@/src/data/images';
 import { colors, spacing } from '@/src/theme/theme';
 
 export default function HomeScreen() {
   const { user } = useAuth();
+  const database = useSQLiteContext();
+
+  const [latestCharacter, setLatestCharacter] =
+    useState<Character | null>(null);
 
   const username =
     user?.email?.split('@')[0] || 'aventureiro';
 
+  useFocusEffect(
+    useCallback(() => {
+      async function loadLatestCharacter() {
+        try {
+          const result =
+            await findMostRecentCharacter(database);
+
+          setLatestCharacter(result);
+        } catch (error) {
+          console.error(error);
+          setLatestCharacter(null);
+        }
+      }
+
+      loadLatestCharacter();
+    }, [database]),
+  );
+
+  const heroSource =
+    latestCharacter?.portraitUri
+      ? { uri: latestCharacter.portraitUri }
+      : defaultCharacterImage;
+
   return (
     <Screen>
       <Image
-        source={homeImage}
+        source={heroSource}
         style={styles.hero}
       />
 
@@ -34,6 +69,16 @@ export default function HomeScreen() {
           Crie rapidamente a história e a personalidade de um
           personagem de RPG.
         </Text>
+
+        {latestCharacter ? (
+          <Text style={styles.lastCharacter}>
+            Último personagem: {latestCharacter.name}
+          </Text>
+        ) : (
+          <Text style={styles.lastCharacter}>
+            Você ainda não criou nenhum personagem.
+          </Text>
+        )}
       </View>
 
       <Text style={styles.title}>
@@ -101,6 +146,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 21,
     marginTop: spacing.sm,
+  },
+  lastCharacter: {
+    color: colors.primary,
+    fontSize: 14,
+    marginTop: spacing.sm,
+    fontWeight: '700',
   },
   title: {
     color: colors.text,
